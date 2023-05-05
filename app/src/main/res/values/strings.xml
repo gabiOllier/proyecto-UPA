@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">UPA</string>
+    <string name="entrenar">Entrenar</string>
+    <string name="importar">Importar</string>
+    <string name="exportar">Exportar</string>
+    <string name="donde_estoy">¿Donde Estoy?</string>
+</resources>
