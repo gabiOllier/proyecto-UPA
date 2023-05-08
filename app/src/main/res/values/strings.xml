@@ -4,4 +4,8 @@
     <string name="importar">Importar</string>
     <string name="exportar">Exportar</string>
     <string name="donde_estoy">¿Donde Estoy?</string>
+    <string name="ubicacion">Ubicacion</string>
+    <string name="iteraciones">Iteraciones</string>
+    <string name="cerrar">Cerrar</string>
+    <string name="asistir">Asistir</string>
 </resources>
