@@ -2,10 +2,14 @@
     <string name="app_name">UPA</string>
     <string name="entrenar">Entrenar</string>
     <string name="importar">Importar</string>
+    <string name="importar_filename">/tmp/upa_import_data.json</string>
     <string name="exportar">Exportar</string>
+    <string name="exportar_filename">/tmp/upa_export_data.json</string>
     <string name="donde_estoy">¿Donde Estoy?</string>
     <string name="ubicacion">Ubicacion</string>
+    <string name="ubicacion_a_entrenar">Nombre de la ubicacion a entrenar</string>
     <string name="iteraciones">Iteraciones</string>
     <string name="cerrar">Cerrar</string>
     <string name="asistir">Asistir</string>
+    <string name="ajustes">Ajustes</string>
 </resources>

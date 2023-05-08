@@ -30,16 +30,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Gestion de eventos
         toolbar.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.entrenar) {
+            if (item.getItemId() == R.id.ajustes) {
                 hideAssistButton();
             }
             else if (item.getItemId() == R.id.asistir) {
                 displayAssistButton();
-            }
-            else if (item.getItemId() == R.id.importar) {
-                // TODO
-            } else if (item.getItemId() == R.id.exportar) {
-                // TODO
             }
             return false;
         });

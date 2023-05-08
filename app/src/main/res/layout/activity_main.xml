@@ -45,7 +45,7 @@
             android:id="@+id/ubicacionTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/ubicacion" />
+            android:text="@string/entrenar" />
 
         <EditText
             android:id="@+id/ubicacionEditText"
@@ -53,7 +53,8 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="text"
-            android:text="" />
+            android:minHeight="48dp"
+            android:text="@string/ubicacion" />
 
         <TextView
             android:id="@+id/iteracionesTextView"
@@ -67,7 +68,74 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="text"
+            android:minHeight="48dp"
             android:text="10" />
+
+        <Button
+            android:id="@+id/entrenarButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/entrenar" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_margin="10dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:id="@+id/importarTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/importar" />
+
+        <EditText
+            android:id="@+id/importarEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:text="@string/importar_filename" />
+
+        <Button
+            android:id="@+id/importarButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/importar" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_margin="10dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:id="@+id/exportarTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/exportar" />
+
+        <EditText
+            android:id="@+id/exportarEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:text="@string/exportar_filename" />
+
+        <Button
+            android:id="@+id/exportartButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/exportar" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_margin="10dp"
+            android:background="?android:attr/listDivider" />
 
         <Button
             android:id="@+id/cerrarButton"
