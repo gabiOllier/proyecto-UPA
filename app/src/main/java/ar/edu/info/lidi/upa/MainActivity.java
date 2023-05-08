@@ -4,30 +4,45 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.speech.tts.TextToSpeech;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
 
+    TTSListener listener;
+    TextToSpeech tts;
+
+    Toolbar toolbar;
     Button dondeEstoyButton;
     Button cerrarButton;
+
+    PosAssistInterface posAssist = new WiFiPosAssistImpl();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        // Inicialmente la app se encuentra en modo asistencia
+        initComponents();
+        initEvents();
+        displayAssistButton();
+    }
+
+    protected void initComponents() {
+        toolbar = findViewById(R.id.toolbar);
         toolbar.setSubtitle("UPA");
         toolbar.inflateMenu(R.menu.options);
 
-        // Inicialmente la app se encuentra en modo asistencia
-        initComponents();
-        displayAssistButton();
+        dondeEstoyButton = findViewById(R.id.dondeEstoyButton);
+        cerrarButton = findViewById(R.id.cerrarButton);
 
+        listener = new TTSListener();
+        tts = new TextToSpeech(getBaseContext(), listener);
+    }
+
+    protected void initEvents() {
         // Gestion de eventos
         toolbar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.ajustes) {
@@ -38,17 +53,8 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         });
-        cerrarButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                displayAssistButton();
-            }
-        });
-    }
-
-    protected void initComponents() {
-        dondeEstoyButton = findViewById(R.id.dondeEstoyButton);
-        cerrarButton = findViewById(R.id.cerrarButton);
+        cerrarButton.setOnClickListener(v -> displayAssistButton());
+        dondeEstoyButton.setOnClickListener(v -> assistPosition());
     }
 
     protected void displayAssistButton() {
@@ -59,5 +65,10 @@ public class MainActivity extends AppCompatActivity {
     protected void hideAssistButton() {
         dondeEstoyButton.setVisibility(View.GONE);
     }
+
+    protected void assistPosition() {
+        tts.speak(posAssist.locate(), TextToSpeech.QUEUE_ADD, null, ""+System.nanoTime());
+    }
+
 
 }
