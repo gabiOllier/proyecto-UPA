@@ -1,4 +1,4 @@
-package ar.edu.info.lidi.upa;
+package ar.edu.info.lidi.upa.tts;
 
 import android.speech.tts.TextToSpeech;
 

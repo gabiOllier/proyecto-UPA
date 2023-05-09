@@ -8,6 +8,10 @@ import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.widget.Button;
 
+import ar.edu.info.lidi.upa.assist.PosAssistInterface;
+import ar.edu.info.lidi.upa.assist.WiFiPosAssistImpl;
+import ar.edu.info.lidi.upa.tts.TTSListener;
+
 public class MainActivity extends AppCompatActivity {
 
     TTSListener listener;
@@ -67,8 +71,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void assistPosition() {
-        tts.speak(posAssist.locate(), TextToSpeech.QUEUE_ADD, null, ""+System.nanoTime());
+        try {
+            speak(posAssist.locate());
+        } catch (Exception e) {
+            speak(e.getMessage());
+        }
     }
 
+    protected void speak(String text) {
+        tts.speak(text, TextToSpeech.QUEUE_ADD, null, "" + System.nanoTime());
+    }
 
 }
