@@ -34,18 +34,22 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
     boolean evaluatingWhereAmI = false;
     /** Clase que debe recibir el callback */
     protected ProcessCompletedCallBackInterface iface;
+    protected Context ctx;
+    protected String location;
 
-    public void process(Context ctx, String location)  {
+    public void process(Context ctx, String location, ProcessCompletedCallBackInterface iface)  {
+        this.iface = iface;
+        this.location = location;
+        this.ctx=ctx;
         WifiManager wifiManager = (WifiManager) ctx.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         BroadcastReceiver wifiScanReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context c, Intent intent)  {
                 boolean success = intent.getBooleanExtra(WifiManager.EXTRA_RESULTS_UPDATED, false);
                 if (success) {
-                    scanSuccess(ctx, location);
+                    scanSuccess();
                 } else {
                     iface.processingError(new TrainingProcessingException("Error durante el entrenamiento. Reintente."));
-                    return;
                 }
             }
         };
@@ -67,19 +71,17 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
 
     @Override
     public void train(Context ctx, String location, ProcessCompletedCallBackInterface iface)  {
-        this.iface = iface;
         evaluatingWhereAmI = false;
-        process(ctx, location);
+        process(ctx, location, iface);
     }
 
     @Override
     public void locate(Context ctx, ProcessCompletedCallBackInterface iface) {
-        this.iface = iface;
         evaluatingWhereAmI = true;
-        process(ctx, null);
+        process(ctx, null, iface);
     }
 
-    protected void scanSuccess(Context ctx, String location)  {
+    protected void scanSuccess()  {
         WifiManager wifiManager = (WifiManager) ctx.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         if (ActivityCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -112,6 +114,7 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
                 }
             } catch (Exception e) {
                 iface.processingError(new NoLocationAvailableException("Error en entrenamiento"));
+                e.printStackTrace();
                 return;
             }
             iface.trainingCompleted("Finalizado");

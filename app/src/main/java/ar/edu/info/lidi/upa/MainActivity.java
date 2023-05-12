@@ -65,9 +65,6 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
             if (item.getItemId() == R.id.ajustes) {
                 hideAssistButton();
             }
-            else if (item.getItemId() == R.id.asistir) {
-                displayAssistButton();
-            }
             return false;
         });
         cerrarButton.setOnClickListener(v -> displayAssistButton());
@@ -87,7 +84,6 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
     /** Entrenar ubicacion */
     public void train() {
         String ubicacion = ubicacionEditText.getText().toString();
-//  Integer iteraciones = Integer.parseInt(iterationsEditText.getText().toString());
         Toast.makeText(getBaseContext(), "Realizando entrenamiento...", Toast.LENGTH_LONG).show();
         posAssist.train(getBaseContext(), ubicacion, this);
     }
@@ -104,7 +100,16 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
 
     @Override
     public void trainingCompleted(String message) {
-        Toast.makeText(getBaseContext(), message, Toast.LENGTH_LONG).show();
+        try {
+            Integer currentIteration = Integer.parseInt(iterationsEditText.getText().toString());
+            if (currentIteration > 0) {
+                int pendingIterations = currentIteration - 1;
+                iterationsEditText.setText(""+pendingIterations);
+                train();
+                return;
+            }
+            Toast.makeText(getBaseContext(), message, Toast.LENGTH_LONG).show();
+        } catch (Exception e) { /* Ignorar por el momento */}
     }
 
     @Override

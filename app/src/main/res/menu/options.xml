@@ -3,6 +3,4 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:title="@string/ajustes"
         android:id="@+id/ajustes" />
-    <item android:title="@string/asistir"
-        android:id="@+id/asistir" />
 </menu>
