@@ -17,7 +17,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import ar.edu.info.lidi.upa.assist.PositionAssistanceInterface;
 import ar.edu.info.lidi.upa.assist.ProcessCompletedCallBackInterface;
@@ -43,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
     PositionAssistanceInterface posAssist;
     JSONExporter exporter;
 
+    int totalIterations = 0;
 
     private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 2;
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         // Inicialmente la app se encuentra en modo asistencia
         initComponents();
         initEvents();
-        displayAssistButton();
+        goAssistState();
         managePermissions();
     }
 
@@ -90,13 +90,13 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         // Gestion de eventos
         toolbar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.ajustes) {
-                hideAssistButton();
+                goConfigState();
             }
             return false;
         });
-        cerrarButton.setOnClickListener(v -> displayAssistButton());
+        cerrarButton.setOnClickListener(v -> goAssistState());
         dondeEstoyButton.setOnClickListener(v -> estimateLocation());
-        entrenarButton.setOnClickListener(v -> train());
+        entrenarButton.setOnClickListener(v -> startTraining());
         exportarButton.setOnClickListener(v -> exportToFile());
         exportarAlClipboardButton.setOnClickListener(v -> exportToClipboard());
     }
@@ -111,20 +111,29 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         }
     }
 
-    protected void displayAssistButton() {
+    protected void goAssistState() {
+        status("UPA");
         dondeEstoyButton.setVisibility(View.VISIBLE);
         dondeEstoyButton.getLayoutParams().height=-1;
     }
 
-    protected void hideAssistButton() {
+    protected void goConfigState() {
+        status("Ajustes");
         dondeEstoyButton.setVisibility(View.GONE);
     }
 
+    protected void startTraining() {
+        if (ubicacionEditText.getText().toString().trim().length()==0) {
+            status("Se requiere ubicacion");
+            return;
+        }
+        totalIterations = Integer.parseInt(iterationsSpinner.getSelectedItem().toString());
+        status("Entrenando...");
+        train();
+    }
     /** Entrenar ubicacion */
     public void train() {
-        String ubicacion = ubicacionEditText.getText().toString();
-        Toast.makeText(getBaseContext(), "Realizando entrenamiento...", Toast.LENGTH_SHORT).show();
-        posAssist.train(getBaseContext(), ubicacion, this);
+        posAssist.train(getBaseContext(), ubicacionEditText.getText().toString(), this);
     }
 
     /** Estimar la posicion actual */
@@ -136,42 +145,41 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         tts.speak(text, TextToSpeech.QUEUE_ADD, null, "" + System.nanoTime());
     }
 
+    protected void status(String message) {
+        toolbar.setSubtitle(message);
+    }
 
     @Override
     public void trainingCompleted(String message) {
-        try {
-            Integer currentIteration = Integer.parseInt(iterationsSpinner.getSelectedItem().toString());
-            if (currentIteration > 0) {
-                int pendingIterations = currentIteration - 1;
-                iterationsSpinner.setSelection(iterationsSpinner.getSelectedItemPosition()-1);
-                train();
-                return;
-            }
-            Toast.makeText(getBaseContext(), message, Toast.LENGTH_LONG).show();
-        } catch (Exception e) {
-            Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+        Integer currentIteration = Integer.parseInt(iterationsSpinner.getSelectedItem().toString());
+        if (currentIteration > 0) {
+            iterationsSpinner.setSelection(iterationsSpinner.getSelectedItemPosition()-1);
+            train();
+            return;
         }
+        iterationsSpinner.setSelection(totalIterations);
+        status(message);
     }
 
     @Override
     public void estimationCompleted(String message) {
         speak(message);
-        Toast.makeText(getBaseContext(), message, Toast.LENGTH_LONG).show();
+        status(message);
     }
 
     @Override
     public void processingError(Exception ex) {
         speak(ex.getMessage());
-        Toast.makeText(getBaseContext(), ex.getMessage(), Toast.LENGTH_LONG).show();
+        status(ex.getMessage());
     }
 
     protected void exportToFile() {
         try {
             String fileName = exporter.export(exportarEditText.getText().toString(), posAssist.getTrainingSet());
-            Toast.makeText(getBaseContext(), "Exportado a " + fileName, Toast.LENGTH_LONG).show();
+            status("Exportado a Documentos");
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            status("ERR: " + e.getMessage());
         }
     }
 
@@ -181,7 +189,8 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
             ClipData clip = ClipData.newPlainText("text", exporter.toJSON(posAssist.getTrainingSet()));
             clipboardManager.setPrimaryClip(clip);
         } catch (Exception e) {
-            Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+            status("ERR: " + e.getMessage());
         }
     }
 }
