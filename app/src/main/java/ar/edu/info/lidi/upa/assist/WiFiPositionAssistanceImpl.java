@@ -86,7 +86,6 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
         if (ActivityCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-
         List<ScanResult> wifiList = wifiManager.getScanResults();
         Collections.sort(wifiList, (ScanResult sc1, ScanResult sc2) ->  { return new Integer(sc2.level).compareTo(new Integer(sc1.level)); } );
         if (wifiList.size()==0) {
@@ -98,19 +97,19 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
             try {
                 // recuperar o crear nueva location para el training set
                 Location targetLocation =
-                        trainingSet.locations.stream()
-                                .filter(loc -> loc.name.equalsIgnoreCase(location.toLowerCase()))
+                        trainingSet.getLocations().stream()
+                                .filter(loc -> loc.getName().equalsIgnoreCase(location.toLowerCase()))
                                 .findFirst()
                                 .orElseGet(() -> {
                                     Location newLocation = new Location(location.toLowerCase());
-                                    trainingSet.locations.add(newLocation);
+                                    trainingSet.getLocations().add(newLocation);
                                     return newLocation;
                                 });
 
                 // Carga de los resultados del scan
                 for (ScanResult scanResult : wifiList) {
                     int level = WifiManager.calculateSignalLevel(scanResult.level, MAX_LEVELS);
-                    targetLocation.scanDetails.add(new ScanDetail(scanResult.BSSID, level));
+                    targetLocation.getScanDetails().add(new ScanDetail(scanResult.BSSID, level));
                 }
             } catch (Exception e) {
                 iface.processingError(new NoLocationAvailableException("Error en entrenamiento: " + e.getMessage()));
@@ -126,13 +125,13 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
         Integer minValue = Integer.MAX_VALUE;
 
         try {
-            for (Location location : trainingSet.locations) {
-                String curMinLoc = location.name;
+            for (Location location : trainingSet.getLocations()) {
+                String curMinLoc = location.getName();
                 Integer curMinValue = 0;
                 for (ScanResult result : wifiList) {
-                    curMinValue += location.scanDetails.stream()
-                            .filter(scan -> scan.bbsid.equalsIgnoreCase(result.BSSID))
-                            .reduce(0, (acc, scan) -> acc + Math.abs(scan.signalStrength - result.level), Integer::sum);
+                    curMinValue += location.getScanDetails().stream()
+                            .filter(scan -> scan.getBbsid().equalsIgnoreCase(result.BSSID))
+                            .reduce(0, (acc, scan) -> acc + Math.abs(scan.getSs() - result.level), Integer::sum);
                 }
                 // Tenemos un nuevo mínimo?
                 if (curMinValue < minValue) {
@@ -153,4 +152,8 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
         iface.estimationCompleted(minLoc);
     }
 
+    @Override
+    public TrainingSet getTrainingSet() {
+        return trainingSet;
+    }
 }

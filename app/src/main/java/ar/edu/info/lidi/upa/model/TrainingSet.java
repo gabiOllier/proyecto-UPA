@@ -6,5 +6,12 @@ import java.util.List;
 public class TrainingSet {
 
     /** Nomina de ubicaciones */
-    public List<Location> locations = new ArrayList<>();
+    protected List<Location> locations = new ArrayList<>();
+
+    public List<Location> getLocations() {
+        return locations;
+    }
+    public void setLocations(List<Location> locations) {
+        this.locations = locations;
+    }
 }

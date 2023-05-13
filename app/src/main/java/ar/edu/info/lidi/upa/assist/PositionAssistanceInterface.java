@@ -4,6 +4,7 @@ import android.content.Context;
 
 import ar.edu.info.lidi.upa.exception.NoLocationAvailableException;
 import ar.edu.info.lidi.upa.exception.TrainingProcessingException;
+import ar.edu.info.lidi.upa.model.TrainingSet;
 
 public interface PositionAssistanceInterface {
 
@@ -13,12 +14,17 @@ public interface PositionAssistanceInterface {
      * @param location nombre de la ubicación a entrenar
      * @param iface clase encargada de consumir el resultado del procesamiento
      */
-    public void train(Context ctx, String location, ProcessCompletedCallBackInterface iface);
+    void train(Context ctx, String location, ProcessCompletedCallBackInterface iface);
 
     /**
      * Estimación de la posición actual
      * @param ctx contexto base
      * @param iface clase encargada de consumir el resultado del procesamiento
      */
-    public void locate(Context ctx, ProcessCompletedCallBackInterface iface);
+    void locate(Context ctx, ProcessCompletedCallBackInterface iface);
+
+    /**
+     * @return los datos del entrenamiento
+     */
+    TrainingSet getTrainingSet();
 }

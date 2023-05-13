@@ -6,11 +6,28 @@ import java.util.List;
 public class Location {
 
     /** Nombre de la ubicacion */
-    public String name;
+    protected String name;
     /** Scans realizados sobre esta ubicacion */
-    public List<ScanDetail> scanDetails = new ArrayList<>();
+    protected List<ScanDetail> scanDetails = new ArrayList<>();
 
     public Location(String name) {
         this.name = name;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<ScanDetail> getScanDetails() {
+        return scanDetails;
+    }
+
+    public void setScanDetails(List<ScanDetail> scanDetails) {
+        this.scanDetails = scanDetails;
+    }
+
 }

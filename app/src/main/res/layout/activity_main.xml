@@ -85,14 +85,10 @@
                     android:layout_height="wrap_content"
                     android:text="@string/iteraciones" />
 
-                <EditText
-                    android:id="@+id/iteracionesEditText"
+                <Spinner
+                    android:id="@+id/iterationsSpinner"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:inputType="text"
-                    android:minHeight="48dp"
-                    android:text="@string/iteraciones3" />
+                    android:layout_height="wrap_content" />
 
                 <Button
                     android:id="@+id/entrenarButton"
@@ -153,6 +149,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/exportar" />
+
+                <Button
+                    android:id="@+id/exportartAlClipboardButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/exportarAlClipboard" />
 
                 <View
                     android:layout_width="match_parent"
