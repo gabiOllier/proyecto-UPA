@@ -17,7 +17,7 @@ public interface ProcessCompletedCallBackInterface {
 
     /**
      * Se produjo un error en la actividad
-     * @param ex
+     * @param ex mensaje de error obtenido
      */
     void processingError(Exception ex);
 }

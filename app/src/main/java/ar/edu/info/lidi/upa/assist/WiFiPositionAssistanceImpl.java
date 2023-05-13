@@ -113,7 +113,7 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
                     targetLocation.scanDetails.add(new ScanDetail(scanResult.BSSID, level));
                 }
             } catch (Exception e) {
-                iface.processingError(new NoLocationAvailableException("Error en entrenamiento"));
+                iface.processingError(new NoLocationAvailableException("Error en entrenamiento: " + e.getMessage()));
                 e.printStackTrace();
                 return;
             }
@@ -125,23 +125,29 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
         String minLoc = null;
         Integer minValue = Integer.MAX_VALUE;
 
-        for (Location location : trainingSet.locations) {
-            String curMinLoc = location.name;
-            Integer curMinValue = 0;
-            for (ScanResult result : wifiList) {
-                curMinValue += location.scanDetails.stream()
-                        .filter(scan -> scan.bbsid.equalsIgnoreCase(result.BSSID))
-                        .reduce(0, (acc, scan) -> acc + Math.abs(scan.signalStrength - result.level), Integer::sum);
+        try {
+            for (Location location : trainingSet.locations) {
+                String curMinLoc = location.name;
+                Integer curMinValue = 0;
+                for (ScanResult result : wifiList) {
+                    curMinValue += location.scanDetails.stream()
+                            .filter(scan -> scan.bbsid.equalsIgnoreCase(result.BSSID))
+                            .reduce(0, (acc, scan) -> acc + Math.abs(scan.signalStrength - result.level), Integer::sum);
+                }
+                // Tenemos un nuevo mínimo?
+                if (curMinValue < minValue) {
+                    minValue = curMinValue;
+                    minLoc = curMinLoc;
+                }
             }
-            // Tenemos un nuevo mínimo?
-            if (curMinValue < minValue) {
-                minValue = curMinValue;
-                minLoc = curMinLoc;
-            }
-        }
 
-        if (minLoc == null) {
-            iface.processingError(new NoLocationAvailableException("No se ha podido determinar la ubicacion"));
+            if (minLoc == null) {
+                iface.processingError(new NoLocationAvailableException("No se ha podido determinar la ubicacion"));
+                return;
+            }
+        } catch (Exception e) {
+            iface.processingError(new NoLocationAvailableException("Error en estimacion: " + e.getMessage()));
+            e.printStackTrace();
             return;
         }
         iface.estimationCompleted(minLoc);

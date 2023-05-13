@@ -13,8 +13,6 @@ import android.widget.Toast;
 import ar.edu.info.lidi.upa.assist.PositionAssistanceInterface;
 import ar.edu.info.lidi.upa.assist.ProcessCompletedCallBackInterface;
 import ar.edu.info.lidi.upa.assist.WiFiPositionAssistanceImpl;
-import ar.edu.info.lidi.upa.exception.NoLocationAvailableException;
-import ar.edu.info.lidi.upa.exception.TrainingProcessingException;
 import ar.edu.info.lidi.upa.tts.TTSListener;
 
 public class MainActivity extends AppCompatActivity implements ProcessCompletedCallBackInterface {
@@ -84,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
     /** Entrenar ubicacion */
     public void train() {
         String ubicacion = ubicacionEditText.getText().toString();
-        Toast.makeText(getBaseContext(), "Realizando entrenamiento...", Toast.LENGTH_LONG).show();
+        Toast.makeText(getBaseContext(), "Realizando entrenamiento...", Toast.LENGTH_SHORT).show();
         posAssist.train(getBaseContext(), ubicacion, this);
     }
 
@@ -109,7 +107,9 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
                 return;
             }
             Toast.makeText(getBaseContext(), message, Toast.LENGTH_LONG).show();
-        } catch (Exception e) { /* Ignorar por el momento */}
+        } catch (Exception e) {
+            Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
