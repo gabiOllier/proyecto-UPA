@@ -9,6 +9,7 @@
     <string name="ubicacion">Ubicacion</string>
     <string name="ubicacion_a_entrenar">Nombre de la ubicacion a entrenar</string>
     <string name="iteraciones">Iteraciones</string>
+    <string name="iteraciones3">3</string>
     <string name="cerrar">Cerrar</string>
     <string name="asistir">Asistir</string>
     <string name="ajustes">Ajustes</string>
