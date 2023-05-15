@@ -156,4 +156,6 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
     public TrainingSet getTrainingSet() {
         return trainingSet;
     }
+
+    public void setTrainingSet(TrainingSet ts) { trainingSet = ts; }
 }

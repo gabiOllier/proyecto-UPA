@@ -26,7 +26,7 @@ public class JSONExporter {
     }
 
     public String export(String filename, TrainingSet ts) throws Exception {
-        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getPath(), filename);
+        File file = new File(filename);
         FileOutputStream fos = new FileOutputStream(file);
         fos.write(toJSON(ts).getBytes());
         fos.close();

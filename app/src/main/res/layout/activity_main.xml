@@ -156,6 +156,12 @@
                     android:layout_height="wrap_content"
                     android:text="@string/exportarAlClipboard" />
 
+                <Button
+                    android:id="@+id/compartir"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/compartir" />
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="2dp"

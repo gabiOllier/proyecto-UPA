@@ -5,6 +5,7 @@
     <string name="importar_filename">upa_import_data.json</string>
     <string name="exportar">Exportar</string>
     <string name="exportarAlClipboard">Exportar al Clipboard</string>
+    <string name="compartir">Compartir</string>
     <string name="exportar_filename">upa_export_data.json</string>
     <string name="donde_estoy">¿Donde Estoy?</string>
     <string name="ubicacion">Ubicacion</string>

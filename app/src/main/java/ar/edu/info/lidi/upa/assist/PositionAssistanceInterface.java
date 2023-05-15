@@ -27,4 +27,9 @@ public interface PositionAssistanceInterface {
      * @return los datos del entrenamiento
      */
     TrainingSet getTrainingSet();
+
+    /**
+     * Asignacion de datos de entrenamiento
+     */
+    void setTrainingSet(TrainingSet ts);
 }
