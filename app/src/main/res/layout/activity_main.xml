@@ -108,20 +108,11 @@
                     android:layout_height="wrap_content"
                     android:text="@string/importar" />
 
-                <EditText
-                    android:id="@+id/importarEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:inputType="text"
-                    android:minHeight="48dp"
-                    android:text="@string/importar_filename" />
-
                 <Button
-                    android:id="@+id/importarButton"
+                    android:id="@+id/importarDelClipboardButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/importar" />
+                    android:text="@string/importarDelClipboard" />
 
                 <View
                     android:layout_width="match_parent"
@@ -131,21 +122,6 @@
 
                 <TextView
                     android:id="@+id/exportarTextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/exportar" />
-
-                <EditText
-                    android:id="@+id/exportarEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:inputType="text"
-                    android:minHeight="48dp"
-                    android:text="@string/exportar_filename" />
-
-                <Button
-                    android:id="@+id/exportartButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/exportar" />

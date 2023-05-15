@@ -1,5 +1,8 @@
 package ar.edu.info.lidi.upa.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ScanDetail {
 
     /** Basic Service Set Identifier */
@@ -7,7 +10,8 @@ public class ScanDetail {
     /** Intensidad de la señal (%) */
     protected int ss;
 
-    public ScanDetail(String bbsid, int signalStrength) {
+    @JsonCreator
+    public ScanDetail(@JsonProperty("bbsid") String bbsid, @JsonProperty("signalStrength") int signalStrength) {
         this.bbsid = bbsid;
         this.ss = signalStrength;
     }

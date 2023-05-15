@@ -11,10 +11,8 @@ import ar.edu.info.lidi.upa.model.TrainingSet;
 
 public class JSONImporter {
 
-    public void importIt(String filename, PositionAssistanceInterface iface) throws Exception {
-        File file = new File(filename);
+    public TrainingSet fromJSON(String json) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        TrainingSet ts = mapper.readValue(file, TrainingSet.class);
-        iface.setTrainingSet(ts);
+        return mapper.readValue(json, TrainingSet.class);
     }
 }

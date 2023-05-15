@@ -1,9 +1,13 @@
 package ar.edu.info.lidi.upa.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Location {
+
 
     /** Nombre de la ubicacion */
     protected String name;
@@ -12,6 +16,12 @@ public class Location {
 
     public Location(String name) {
         this.name = name;
+    }
+
+    @JsonCreator
+    public Location(@JsonProperty("name") String name, @JsonProperty("scanDetails") List<ScanDetail> scanDetails) {
+        this.name = name;
+        this.scanDetails = scanDetails;
     }
 
     public String getName() {

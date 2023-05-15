@@ -25,11 +25,4 @@ public class JSONExporter {
         return mapper.writeValueAsString(ts);
     }
 
-    public String export(String filename, TrainingSet ts) throws Exception {
-        File file = new File(filename);
-        FileOutputStream fos = new FileOutputStream(file);
-        fos.write(toJSON(ts).getBytes());
-        fos.close();
-        return file.getPath();
-    }
 }
