@@ -42,6 +42,7 @@
             app:layout_constraintVertical_bias="0.225" />
 
         <ScrollView
+            android:id="@+id/mainScrollView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginStart="8dp"
@@ -95,6 +96,26 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/entrenar" />
+
+                <Button
+                    android:id="@+id/mostrarDatos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/mostrarDatos" />
+
+                <EditText
+                    android:id="@+id/datosEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:ems="10"
+                    android:gravity="start|top"
+                    android:maxLines="8"
+                    android:inputType="none"
+                    android:textIsSelectable="true"
+                    android:focusable="false"
+                    android:longClickable="false"
+                    android:isScrollContainer="true"
+                    android:scrollbars="vertical" />
 
                 <View
                     android:layout_width="match_parent"

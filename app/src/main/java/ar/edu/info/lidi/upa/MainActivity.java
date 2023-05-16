@@ -1,32 +1,28 @@
 package ar.edu.info.lidi.upa;
 
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.Nullable;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 
-import java.io.File;
 
 import ar.edu.info.lidi.upa.assist.PositionAssistanceInterface;
 import ar.edu.info.lidi.upa.assist.ProcessCompletedCallBackInterface;
@@ -47,9 +43,11 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
     Button exportarAlClipboardButton;
     Button importarDelClipboardButton;
     Button compartir;
+    Button mostrarDatos;
     EditText ubicacionEditText;
+    EditText datosEditText;
     Spinner iterationsSpinner;
-
+    ScrollView scrollView;
 
     PositionAssistanceInterface posAssist;
     JSONExporter exporter;
@@ -88,20 +86,26 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         exportarAlClipboardButton = findViewById(R.id.exportartAlClipboardButton);
         importarDelClipboardButton = findViewById(R.id.importarDelClipboardButton);
         compartir = findViewById(R.id.compartir);
+        mostrarDatos = findViewById(R.id.mostrarDatos);
         cerrarButton = findViewById(R.id.cerrarButton);
         ubicacionEditText = findViewById(R.id.ubicacionEditText);
         iterationsSpinner = findViewById(R.id.iterationsSpinner);
+        datosEditText = findViewById(R.id.datosEditText);
+        scrollView = findViewById(R.id.mainScrollView);
+
 
         String[] opciones = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
         ArrayAdapter<String> adaptador = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, opciones);
         adaptador.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         iterationsSpinner.setAdapter(adaptador);
         iterationsSpinner.setSelection(1);
+        datosEditText.setVisibility(View.GONE);
 
         listener = new TTSListener();
         tts = new TextToSpeech(getBaseContext(), listener);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     protected void initEvents() {
         // Gestion de eventos
         toolbar.setOnMenuItemClickListener(item -> {
@@ -116,6 +120,17 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         exportarAlClipboardButton.setOnClickListener(v -> exportToClipboard());
         importarDelClipboardButton.setOnClickListener(v -> importFromClipboard());
         compartir.setOnClickListener(v -> share());
+        mostrarDatos.setOnClickListener(v -> showHideData());
+
+        scrollView.setOnTouchListener((v, event) -> {
+            datosEditText.getParent().requestDisallowInterceptTouchEvent(true);
+            return false;
+        });
+
+        datosEditText.setOnTouchListener((v, event) -> {
+            v.getParent().requestDisallowInterceptTouchEvent(true);
+            return false;
+        });
     }
 
 
@@ -144,6 +159,10 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         dondeEstoyButton.setVisibility(View.GONE);
     }
 
+    protected void showHideData() {
+        datosEditText.setVisibility(datosEditText.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
+    }
+
     protected void startTraining() {
         if (ubicacionEditText.getText().toString().trim().length()==0) {
             status("Se requiere ubicacion");
@@ -160,6 +179,8 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
 
     /** Estimar la posicion actual */
     public void estimateLocation() {
+        speak("Calculando...");
+        status("Calculando...");
         posAssist.locate(getBaseContext(), this);
     }
 
@@ -181,6 +202,11 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         }
         iterationsSpinner.setSelection(totalIterations);
         status(message);
+        try {
+            datosEditText.setText(exporter.toJSON(posAssist.getTrainingSet()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -214,6 +240,7 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
                 ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
                 posAssist.setTrainingSet(importer.fromJSON(item.getText().toString()));
                 status("Copiado desde el clipboard!");
+                datosEditText.setText(item.getText().toString());
                 return;
             }
             status("Formato invalido");
