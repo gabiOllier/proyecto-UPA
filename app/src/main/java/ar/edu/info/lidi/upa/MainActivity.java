@@ -13,9 +13,11 @@ import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -27,12 +29,16 @@ import android.widget.Spinner;
 import ar.edu.info.lidi.upa.assist.PositionAssistanceInterface;
 import ar.edu.info.lidi.upa.assist.ProcessCompletedCallBackInterface;
 import ar.edu.info.lidi.upa.assist.WiFiPositionAssistanceImpl;
+import ar.edu.info.lidi.upa.common.Observer;
+import ar.edu.info.lidi.upa.exception.ProcessingException;
 import ar.edu.info.lidi.upa.tts.TTSListener;
+import ar.edu.info.lidi.upa.utils.Constants;
 import ar.edu.info.lidi.upa.utils.JSONExporter;
 import ar.edu.info.lidi.upa.utils.JSONImporter;
 
-public class MainActivity extends AppCompatActivity implements ProcessCompletedCallBackInterface {
+public class MainActivity extends AppCompatActivity implements ProcessCompletedCallBackInterface, Observer {
 
+    protected final String TAG = "UPA";
     TTSListener listener;
     TextToSpeech tts;
 
@@ -55,11 +61,6 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
 
     int totalIterations = 0;
 
-    private static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
-    private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 2;
-    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 3;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         initEvents();
         goAssistState();
         managePermissions();
+        loadPreferences();
     }
 
     protected void initComponents() {
@@ -103,6 +105,8 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
 
         listener = new TTSListener();
         tts = new TextToSpeech(getBaseContext(), listener);
+
+        posAssist.addObserver(this);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -133,18 +137,25 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         });
     }
 
-
+    @Override
+    public void update() {
+        try {
+            datosEditText.setText(exporter.toJSON(posAssist.getTrainingSet()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     protected void managePermissions() {
         // Solicitar permisos si corresponde
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
         }
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, Constants.PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
         }
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
     }
 
@@ -152,6 +163,23 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         status("UPA");
         dondeEstoyButton.setVisibility(View.VISIBLE);
         dondeEstoyButton.getLayoutParams().height=-1;
+    }
+
+    protected void loadPreferences() {
+        SharedPreferences preferences = getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        datosEditText.setText(preferences.getString(Constants.PREFERENCE_DATA, ""));
+    }
+
+    protected void savePreferences() {
+        SharedPreferences preferences = getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(Constants.PREFERENCE_DATA, datosEditText.getText().toString());
+        editor.commit();
+    }
+
+    protected void onPause() {
+        super.onPause();
+        savePreferences();
     }
 
     protected void goConfigState() {
@@ -202,11 +230,6 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         }
         iterationsSpinner.setSelection(totalIterations);
         status(message);
-        try {
-            datosEditText.setText(exporter.toJSON(posAssist.getTrainingSet()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -216,9 +239,11 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
     }
 
     @Override
-    public void processingError(Exception ex) {
+    public void processingError(ProcessingException ex) {
         speak(ex.getMessage());
         status(ex.getMessage());
+        ex.getExDetails().ifPresent(x -> Log.e(TAG, x.getMessage()));
+
     }
 
     protected void exportToClipboard() {
@@ -228,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
             clipboardManager.setPrimaryClip(clip);
             status("Copiado al clipboard!");
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
             status("ERR: " + e.getMessage());
         }
     }
@@ -240,12 +265,11 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
                 ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
                 posAssist.setTrainingSet(importer.fromJSON(item.getText().toString()));
                 status("Copiado desde el clipboard!");
-                datosEditText.setText(item.getText().toString());
                 return;
             }
             status("Formato invalido");
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
             status("ERR: " + e.getMessage());
         }
     }
@@ -257,8 +281,10 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
             shareIntent.putExtra(Intent.EXTRA_TEXT, exporter.toJSON(posAssist.getTrainingSet()));
             startActivity(Intent.createChooser(shareIntent, "Compartir"));
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
             status("ERR:" + e.getMessage());
         }
     }
+
+
 }

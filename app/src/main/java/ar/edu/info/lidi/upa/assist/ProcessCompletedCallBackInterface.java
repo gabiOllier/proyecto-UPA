@@ -1,5 +1,7 @@
 package ar.edu.info.lidi.upa.assist;
 
+import ar.edu.info.lidi.upa.exception.ProcessingException;
+
 public interface ProcessCompletedCallBackInterface {
 
     /**
@@ -19,5 +21,5 @@ public interface ProcessCompletedCallBackInterface {
      * Se produjo un error en la actividad
      * @param ex mensaje de error obtenido
      */
-    void processingError(Exception ex);
+    void processingError(ProcessingException ex);
 }

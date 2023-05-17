@@ -11,9 +11,12 @@ import android.net.wifi.WifiManager;
 
 import androidx.core.app.ActivityCompat;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
+import ar.edu.info.lidi.upa.common.Observer;
 import ar.edu.info.lidi.upa.exception.NoLocationAvailableException;
 import ar.edu.info.lidi.upa.exception.TrainingProcessingException;
 import ar.edu.info.lidi.upa.model.Location;
@@ -37,6 +40,9 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
     protected Context ctx;
     protected String location;
 
+    protected List<Observer> observers = new ArrayList<>();
+
+
     public void process(Context ctx, String location, ProcessCompletedCallBackInterface iface)  {
         this.iface = iface;
         this.location = location;
@@ -49,7 +55,7 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
                 if (success) {
                     scanSuccess();
                 } else {
-                    iface.processingError(new TrainingProcessingException("Error durante el entrenamiento. Reintente."));
+                    iface.processingError(new TrainingProcessingException("Error durante el entrenamiento. Reintente.", Optional.empty()));
                 }
             }
         };
@@ -63,9 +69,7 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
 
         // Escanear la red, ya sea para entrenar o para estimar ubicacion
         if (!wifiManager.startScan()) {
-            // scan failure handling
-            iface.processingError(new TrainingProcessingException("Error al iniciar entrenamiento. Demasiados intentos o validar permisos."));
-            return;
+            iface.processingError(new TrainingProcessingException("Error al iniciar entrenamiento. Demasiados intentos o validar permisos.", Optional.empty()));
         }
     }
 
@@ -105,17 +109,16 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
                                     trainingSet.getLocations().add(newLocation);
                                     return newLocation;
                                 });
-
                 // Carga de los resultados del scan
                 for (ScanResult scanResult : wifiList) {
                     int level = WifiManager.calculateSignalLevel(scanResult.level, MAX_LEVELS);
                     targetLocation.getScanDetails().add(new ScanDetail(scanResult.BSSID, level));
                 }
             } catch (Exception e) {
-                iface.processingError(new NoLocationAvailableException("Error en entrenamiento: " + e.getMessage()));
-                e.printStackTrace();
+                iface.processingError(new NoLocationAvailableException("Error procesando resultados. ", Optional.of(e)));
                 return;
             }
+            notifyObservers();
             iface.trainingCompleted("Finalizado");
         }
     }
@@ -141,12 +144,11 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
             }
 
             if (minLoc == null) {
-                iface.processingError(new NoLocationAvailableException("No se ha podido determinar la ubicacion"));
+                iface.processingError(new NoLocationAvailableException("No se ha podido determinar la ubicacion", Optional.empty()));
                 return;
             }
         } catch (Exception e) {
-            iface.processingError(new NoLocationAvailableException("Error en estimacion: " + e.getMessage()));
-            e.printStackTrace();
+            iface.processingError(new NoLocationAvailableException("Error en estimacion: ", Optional.of(e)));
             return;
         }
         iface.estimationCompleted(minLoc);
@@ -157,5 +159,17 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
         return trainingSet;
     }
 
-    public void setTrainingSet(TrainingSet ts) { trainingSet = ts; }
+    public void setTrainingSet(TrainingSet ts) {
+        trainingSet = ts;
+        notifyObservers();
+    }
+
+    public void notifyObservers() {
+        observers.forEach(o -> o.update());
+    }
+
+    @Override
+    public void addObserver(Observer observer) {
+        observers.add(observer);
+    }
 }

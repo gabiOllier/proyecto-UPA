@@ -2,6 +2,7 @@ package ar.edu.info.lidi.upa.assist;
 
 import android.content.Context;
 
+import ar.edu.info.lidi.upa.common.Observer;
 import ar.edu.info.lidi.upa.exception.NoLocationAvailableException;
 import ar.edu.info.lidi.upa.exception.TrainingProcessingException;
 import ar.edu.info.lidi.upa.model.TrainingSet;
@@ -32,4 +33,6 @@ public interface PositionAssistanceInterface {
      * Asignacion de datos de entrenamiento
      */
     void setTrainingSet(TrainingSet ts);
+
+    void addObserver(Observer o);
 }

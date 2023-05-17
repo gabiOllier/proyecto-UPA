@@ -1,9 +1,12 @@
 package ar.edu.info.lidi.upa.exception;
 
-/** Error al realizar el entrenamiento */
-public class TrainingProcessingException extends Exception {
+import java.util.Optional;
 
-    public TrainingProcessingException(String message) {
-        super(message);
+/** Error al realizar el entrenamiento */
+public class TrainingProcessingException extends ProcessingException {
+
+
+    public TrainingProcessingException(String message, Optional<Exception> e) {
+        super(message, e);
     }
 }
