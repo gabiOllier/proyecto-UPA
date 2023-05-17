@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
     }
 
     protected void goAssistState() {
-        status("UPA");
+        status("UPA", Constants.OUTPUT_TEXT);
         dondeEstoyButton.setVisibility(View.VISIBLE);
         dondeEstoyButton.getLayoutParams().height=-1;
     }
@@ -173,7 +173,9 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         SharedPreferences preferences = getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         ubicacionEditText.setText(preferences.getString(Constants.PREFERENCE_LOCATION, "Ubicacion"));
         iterationsSpinner.setSelection(preferences.getInt(Constants.PREFERENCE_ITERATIONS, 1));
-        datosEditText.setText(preferences.getString(Constants.PREFERENCE_DATA, ""));
+        try {
+            posAssist.setTrainingSet(importer.fromJSON(preferences.getString(Constants.PREFERENCE_DATA, "")));
+        } catch (Exception e) { }
     }
 
     protected void savePreferences() {
@@ -191,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
     }
 
     protected void goConfigState() {
-        status("Ajustes");
+        status("Ajustes", Constants.OUTPUT_TEXT);
         dondeEstoyButton.setVisibility(View.GONE);
     }
 
@@ -201,11 +203,11 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
 
     protected void startTraining() {
         if (ubicacionEditText.getText().toString().trim().length()==0) {
-            status("Se requiere ubicacion");
+            status("Se requiere ubicacion", Constants.OUTPUT_TEXT);
             return;
         }
         totalIterations = Integer.parseInt(iterationsSpinner.getSelectedItem().toString());
-        status("Entrenando...");
+        status("Entrenando...", Constants.OUTPUT_TEXT);
         train();
     }
 
@@ -226,17 +228,15 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
 
     /** Estimar la posicion actual */
     public void estimateLocation() {
-        speak("Calculando...");
-        status("Calculando...");
+        status("Calculando...", Constants.OUTPUT_BOTH);
         posAssist.locate(getBaseContext(), this);
     }
 
-    protected void speak(String text) {
-        tts.speak(text, TextToSpeech.QUEUE_ADD, null, "" + System.nanoTime());
-    }
-
-    protected void status(String message) {
-        toolbar.setSubtitle(message);
+    protected void status(String message, Integer output) {
+        if (Constants.OUTPUT_TEXT == output || Constants.OUTPUT_BOTH == output)
+            toolbar.setSubtitle(message);
+        if (Constants.OUTPUT_AUDIO == output || Constants.OUTPUT_BOTH == output)
+            tts.speak(message, TextToSpeech.QUEUE_ADD, null, "" + System.nanoTime());
     }
 
     @Override
@@ -248,19 +248,17 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
             return;
         }
         iterationsSpinner.setSelection(totalIterations);
-        status(message);
+        status(message, Constants.OUTPUT_TEXT);
     }
 
     @Override
     public void estimationCompleted(String message) {
-        speak(message);
-        status(message);
+        status(message, Constants.OUTPUT_BOTH);
     }
 
     @Override
     public void processingError(ProcessingException ex) {
-        speak(ex.getMessage());
-        status(ex.getMessage());
+        status(ex.getMessage(), Constants.OUTPUT_BOTH);
         ex.getExDetails().ifPresent(x -> Log.e(TAG, x.getMessage()));
 
     }
@@ -270,10 +268,10 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
             ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
             ClipData clip = ClipData.newPlainText("text", exporter.toJSON(posAssist.getTrainingSet()));
             clipboardManager.setPrimaryClip(clip);
-            status("Copiado al clipboard!");
+            status("Copiado al clipboard!", Constants.OUTPUT_TEXT);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
-            status("ERR: " + e.getMessage());
+            status("ERR: " + e.getMessage(), Constants.OUTPUT_TEXT);
         }
     }
 
@@ -283,13 +281,13 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
             if (clipboard.hasPrimaryClip() && clipboard.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
                 ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
                 posAssist.setTrainingSet(importer.fromJSON(item.getText().toString()));
-                status("Copiado desde el clipboard!");
+                status("Copiado desde el clipboard!", Constants.OUTPUT_TEXT);
                 return;
             }
-            status("Formato invalido");
+            status("Formato invalido", Constants.OUTPUT_TEXT);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
-            status("ERR: " + e.getMessage());
+            status("ERR: " + e.getMessage(), Constants.OUTPUT_TEXT);
         }
     }
 
@@ -301,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
             startActivity(Intent.createChooser(shareIntent, "Compartir"));
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
-            status("ERR:" + e.getMessage());
+            status("ERR:" + e.getMessage(), Constants.OUTPUT_TEXT);
         }
     }
 

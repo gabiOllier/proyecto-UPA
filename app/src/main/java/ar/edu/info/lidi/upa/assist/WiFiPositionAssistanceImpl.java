@@ -82,6 +82,10 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
     @Override
     public void locate(Context ctx, ProcessCompletedCallBackInterface iface) {
         evaluatingWhereAmI = true;
+        if (trainingSet.getLocations().isEmpty()) {
+            iface.processingError(new NoLocationAvailableException("No hay informacion de entrenamiento", Optional.empty()));
+            return;
+        }
         process(ctx, null, iface);
     }
 

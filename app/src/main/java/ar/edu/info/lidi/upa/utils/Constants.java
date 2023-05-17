@@ -16,4 +16,10 @@ public class Constants {
     /** Datos de entrenamiento */
     public static final String PREFERENCE_DATA = "DATOS";
 
+    /** Status solo texto */
+    public static final Integer OUTPUT_TEXT  = 1;
+    /** Status solo audio */
+    public static final Integer OUTPUT_AUDIO = 2;
+    /** Status texto y audio */
+    public static final Integer OUTPUT_BOTH  = 3;
 }
