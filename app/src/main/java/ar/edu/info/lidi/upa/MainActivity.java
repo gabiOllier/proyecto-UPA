@@ -171,14 +171,18 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
 
     protected void loadPreferences() {
         SharedPreferences preferences = getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        ubicacionEditText.setText(preferences.getString(Constants.PREFERENCE_LOCATION, "Ubicacion"));
+        iterationsSpinner.setSelection(preferences.getInt(Constants.PREFERENCE_ITERATIONS, 1));
         datosEditText.setText(preferences.getString(Constants.PREFERENCE_DATA, ""));
     }
 
     protected void savePreferences() {
         SharedPreferences preferences = getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(Constants.PREFERENCE_LOCATION, ubicacionEditText.getText().toString());
+        editor.putInt(Constants.PREFERENCE_ITERATIONS, iterationsSpinner.getSelectedItemPosition());
         editor.putString(Constants.PREFERENCE_DATA, datosEditText.getText().toString());
-        editor.commit();
+        editor.apply();
     }
 
     protected void onPause() {

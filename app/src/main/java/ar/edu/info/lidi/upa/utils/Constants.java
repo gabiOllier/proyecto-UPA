@@ -8,5 +8,12 @@ public class Constants {
 
     public static final String SHARED_PREFERENCES_NAME = "prefs";
 
+
+    /** Numero de iteraciones a realizar */
+    public static final String PREFERENCE_ITERATIONS = "ITERATIONS";
+    /** Ubicacion */
+    public static final String PREFERENCE_LOCATION = "LOCATION";
+    /** Datos de entrenamiento */
     public static final String PREFERENCE_DATA = "DATOS";
+
 }
