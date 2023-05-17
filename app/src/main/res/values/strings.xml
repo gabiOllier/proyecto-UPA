@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">UPA</string>
     <string name="entrenar">Entrenar</string>
+    <string name="eliminar">Eliminar entrenamiento</string>
     <string name="mostrarDatos">Mostrar / Ocultar datos</string>
     <string name="importar">Importar</string>
     <string name="importar_filename">upa_import_data.json</string>

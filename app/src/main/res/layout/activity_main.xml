@@ -98,6 +98,12 @@
                     android:text="@string/entrenar" />
 
                 <Button
+                    android:id="@+id/eliminarButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/eliminar" />
+
+                <Button
                     android:id="@+id/mostrarDatos"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

@@ -164,6 +164,12 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
         notifyObservers();
     }
 
+    @Override
+    public void emptyTrainingSet() {
+        trainingSet = new TrainingSet();
+        notifyObservers();
+    }
+
     public void notifyObservers() {
         observers.forEach(o -> o.update());
     }

@@ -1,6 +1,7 @@
 package ar.edu.info.lidi.upa;
 
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
     Toolbar toolbar;
     Button dondeEstoyButton;
     Button entrenarButton;
+    Button eliminarButton;
     Button cerrarButton;
     Button exportarAlClipboardButton;
     Button importarDelClipboardButton;
@@ -85,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
 
         dondeEstoyButton = findViewById(R.id.dondeEstoyButton);
         entrenarButton = findViewById(R.id.entrenarButton);
+        eliminarButton = findViewById(R.id.eliminarButton);
         exportarAlClipboardButton = findViewById(R.id.exportartAlClipboardButton);
         importarDelClipboardButton = findViewById(R.id.importarDelClipboardButton);
         compartir = findViewById(R.id.compartir);
@@ -121,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         cerrarButton.setOnClickListener(v -> goAssistState());
         dondeEstoyButton.setOnClickListener(v -> estimateLocation());
         entrenarButton.setOnClickListener(v -> startTraining());
+        eliminarButton.setOnClickListener(v -> deleteTraining());
         exportarAlClipboardButton.setOnClickListener(v -> exportToClipboard());
         importarDelClipboardButton.setOnClickListener(v -> importFromClipboard());
         compartir.setOnClickListener(v -> share());
@@ -200,6 +204,17 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         status("Entrenando...");
         train();
     }
+
+    public void deleteTraining() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Confirmacion")
+                .setMessage("¿Estas seguro de que deseas eliminar?")
+                .setPositiveButton("Aceptar", (aDialog, which) -> posAssist.emptyTrainingSet())
+                .setNegativeButton("Cancelar", (aDialog, which) -> {})
+                .create();
+        dialog.show();
+    }
+
     /** Entrenar ubicacion */
     public void train() {
         posAssist.train(getBaseContext(), ubicacionEditText.getText().toString(), this);
