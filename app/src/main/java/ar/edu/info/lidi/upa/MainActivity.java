@@ -29,8 +29,8 @@ import android.widget.Spinner;
 
 import ar.edu.info.lidi.upa.assist.PositionAssistanceInterface;
 import ar.edu.info.lidi.upa.assist.ProcessCompletedCallBackInterface;
-import ar.edu.info.lidi.upa.assist.WiFiPositionAssistanceImpl;
 import ar.edu.info.lidi.upa.common.Observer;
+import ar.edu.info.lidi.upa.common.PositionAssistanceFactory;
 import ar.edu.info.lidi.upa.exception.ProcessingException;
 import ar.edu.info.lidi.upa.tts.TTSListener;
 import ar.edu.info.lidi.upa.utils.Constants;
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
     }
 
     protected void initComponents() {
-        posAssist = new WiFiPositionAssistanceImpl();
+        posAssist = PositionAssistanceFactory.getInstance();
         exporter = new JSONExporter();
         importer = new JSONImporter();
 
