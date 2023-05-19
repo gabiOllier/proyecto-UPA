@@ -27,6 +27,8 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
 
     /** Niveles de intensidad normalizado a porcentaje */
     static final int MAX_LEVELS = 100;
+    /** Umbral aceptable */
+    static final int MIN_SS = 50;
     /** Conjunto de emtrenamiento */
     protected TrainingSet trainingSet = new TrainingSet();
     protected IntentFilter intentFilter;
@@ -116,7 +118,9 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
                 // Carga de los resultados del scan
                 for (ScanResult scanResult : wifiList) {
                     int level = WifiManager.calculateSignalLevel(scanResult.level, MAX_LEVELS);
-                    targetLocation.getScanDetails().add(new ScanDetail(scanResult.BSSID, level));
+                    // Considerar unicamente escaneos por encima de cierto umbral aceptable
+                    if (level >= MIN_SS)
+                        targetLocation.getScanDetails().add(new ScanDetail(scanResult.BSSID, level));
                 }
             } catch (Exception e) {
                 iface.processingError(new NoLocationAvailableException("Error procesando resultados. ", Optional.of(e)));
@@ -127,35 +131,62 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
         }
     }
 
+    /**
+     * Estimación de la ubicación y notificación del evento resultante
+     * @param wifiList escaneo actual
+     * @throws NoLocationAvailableException ante un error o si el entrenamiento no contiene informacion para estimar
+     */
     protected void estimateLocation(List<ScanResult> wifiList)  {
-        String minLoc = null;
-        Integer minValue = Integer.MAX_VALUE;
-
         try {
-            for (Location location : trainingSet.getLocations()) {
-                String curMinLoc = location.getName();
-                Integer curMinValue = 0;
-                for (ScanResult result : wifiList) {
-                    curMinValue += location.getScanDetails().stream()
-                            .filter(scan -> scan.getBbsid().equalsIgnoreCase(result.BSSID))
-                            .reduce(0, (acc, scan) -> acc + Math.abs(scan.getSs() - result.level), Integer::sum);
-                }
-                // Tenemos un nuevo mínimo?
-                if (curMinValue < minValue) {
-                    minValue = curMinValue;
-                    minLoc = curMinLoc;
-                }
-            }
-
-            if (minLoc == null) {
+            String target = findNearestLocation(wifiList);
+            if (target == null) {
                 iface.processingError(new NoLocationAvailableException("No se ha podido determinar la ubicacion", Optional.empty()));
                 return;
             }
+            iface.estimationCompleted(target);
         } catch (Exception e) {
             iface.processingError(new NoLocationAvailableException("Error en estimacion: ", Optional.of(e)));
-            return;
         }
-        iface.estimationCompleted(minLoc);
+    }
+
+    /**
+     * Buscar el mejor match entre el scan actual y el entrenamiento previo
+     * @param wifiList escaneo actual
+     * @return nombre de la ubicacion con menor distanci
+     * @throws Exception en caso de error en el procesamiento
+     */
+    public String findNearestLocation(List<ScanResult> wifiList) throws Exception {
+
+        /*
+         * TODO: Optimizar cálculo de la distancia.
+         *          - Considerar diferentes enfoques para mejorar la precisión y eficiencia del cálculo de la distancia,
+         *          como utilizar algoritmos de distancia más avanzados (por ejemplo, distancia euclidiana o distancia de Mahalanobis)
+         *          o realizar filtrado previo de los puntos de acceso WiFi para limitar el cálculo solo a los más relevantes.
+         *          - Considerar la influencia de la intensidad de la señal: ajustar la ponderación de la intensidad de la señal WiFi
+         *          en el cálculo de la distancia.  Por ejemplo aplicar un factor de peso a las diferencias de intensidad para
+         *          resaltar o atenuar su importancia en la determinación de la ubicación más cercana.
+         */
+        String minLoc = null;
+        Integer minValue = Integer.MAX_VALUE;
+
+        for (Location location : trainingSet.getLocations()) {
+            String curMinLoc = location.getName();
+            Integer curMinValue = 0;
+            for (ScanResult result : wifiList) {
+                // Omitir niveles de señal bajos
+                if (result.level < MIN_SS)
+                    continue;
+                curMinValue += location.getScanDetails().stream()
+                        .filter(scan -> scan.getBbsid().equalsIgnoreCase(result.BSSID))
+                        .reduce(0, (acc, scan) -> acc + Math.abs(scan.getSs() - WifiManager.calculateSignalLevel(result.level, MAX_LEVELS)), Integer::sum );
+            }
+            // Tenemos un nuevo mínimo?
+            if (curMinValue < minValue) {
+                minValue = curMinValue;
+                minLoc = curMinLoc;
+            }
+        }
+       return minLoc;
     }
 
     @Override
