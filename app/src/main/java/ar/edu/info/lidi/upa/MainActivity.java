@@ -208,6 +208,11 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         }
         totalIterations = Integer.parseInt(iterationsSpinner.getSelectedItem().toString());
         status("Entrenando...", Constants.OUTPUT_TEXT);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         train();
     }
 
@@ -226,10 +231,21 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         posAssist.train(getBaseContext(), ubicacionEditText.getText().toString(), this);
     }
 
+    public void calculate() {            ////////////////////////
+        posAssist.medianas();
+    }
+
     /** Estimar la posicion actual */
     public void estimateLocation() {
-        status("Calculando...", Constants.OUTPUT_BOTH);
-        posAssist.locate(getBaseContext(), this);
+        status("Calculando... Espere unos segundo sin moverse", Constants.OUTPUT_BOTH);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        for (int i=0; i<3; i++) {       ////////////////////////////////
+            posAssist.locate(getBaseContext(), this);
+        }
     }
 
     protected void status(String message, Integer output) {
@@ -247,6 +263,7 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
             train();
             return;
         }
+        calculate();            ////////////////////////
         iterationsSpinner.setSelection(totalIterations);
         status(message, Constants.OUTPUT_TEXT);
     }

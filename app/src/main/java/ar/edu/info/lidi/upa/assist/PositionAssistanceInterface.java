@@ -42,4 +42,8 @@ public interface PositionAssistanceInterface {
      * @param o observer
      */
     void addObserver(Observer o);
+
+    /* Metodo para calcular medianas de señales en varias iteraciones*/
+    void medianas();
+
 }
