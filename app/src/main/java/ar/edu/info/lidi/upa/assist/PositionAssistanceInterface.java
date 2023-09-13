@@ -28,6 +28,11 @@ public interface PositionAssistanceInterface {
     TrainingSet getTrainingSet();
 
     /**
+     * @return el location asignado al procesamiento
+     */
+    String getLocation();
+
+    /**
      * Asignacion de datos de entrenamiento
      */
     void setTrainingSet(TrainingSet ts);
@@ -43,7 +48,15 @@ public interface PositionAssistanceInterface {
      */
     void addObserver(Observer o);
 
-    /* Metodo para calcular medianas de señales en varias iteraciones*/
+    /**
+     * Notificar a los observadores sobre cambio en el modelo
+     */
+    public void notifyObservers();
+
+    /** Metodo para calcular medianas de señales en varias iteraciones */
     void medianas();
+
+    /* Estrategia para la determinacion de ubicacion */
+    void setStrategy(WiFiLocationEstimationStrategy strategy);
 
 }

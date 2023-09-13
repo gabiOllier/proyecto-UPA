@@ -40,4 +40,11 @@ public class Location {
         this.scanDetails = scanDetails;
     }
 
+    @Override
+    public String toString() {
+        return "\nLocation{" +
+                "name='" + name + '\'' +
+                ", scanDetails=" + scanDetails +
+                '}';
+    }
 }

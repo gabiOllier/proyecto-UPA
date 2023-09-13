@@ -48,29 +48,12 @@ public class FakePositionAssitanceImpl extends WiFiPositionAssistanceImpl {
     /**
      * Lectura para estimación de posicion
      */
-    protected List<ScanResult> loadFakePositionScan() {
-        List<ScanResult> scan = new ArrayList<>();
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-            ScanResult sr1 = new ScanResult();
-            sr1.BSSID = "aa:aa:aa:aa:aa:01";
-            sr1.level = 20;
-
-            ScanResult sr2 = new ScanResult();
-            sr2.BSSID = "aa:aa:aa:aa:aa:02";
-            sr2.level = 15;
-
-            ScanResult sr3 = new ScanResult();
-            sr3.BSSID = "aa:aa:aa:aa:aa:04";
-            sr3.level = 80;
-
-            scan.add(sr1);
-            scan.add(sr2);
-            scan.add(sr3);
-        }
-
+    protected List<ScanDetail> loadFakePositionScan() {
+        List<ScanDetail> scan = new ArrayList<>();
+        scan.add(new ScanDetail("aa:aa:aa:aa:aa:01", 20));
+        scan.add(new ScanDetail("aa:aa:aa:aa:aa:02", 15));
+        scan.add(new ScanDetail("aa:aa:aa:aa:aa:03", 80));
         return scan;
-
     }
 
 }

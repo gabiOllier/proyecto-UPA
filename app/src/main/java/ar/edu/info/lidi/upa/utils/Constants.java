@@ -22,4 +22,5 @@ public class Constants {
     public static final Integer OUTPUT_AUDIO = 2;
     /** Status texto y audio */
     public static final Integer OUTPUT_BOTH  = 3;
+
 }

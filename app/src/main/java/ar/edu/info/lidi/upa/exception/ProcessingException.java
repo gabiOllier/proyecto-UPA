@@ -14,4 +14,11 @@ public class ProcessingException extends Exception {
     public Optional<Exception> getExDetails() {
         return exDetails;
     }
+
+    @Override
+    public String toString() {
+        return "ProcessingException{" +
+                "exDetails=" + exDetails +
+                '}';
+    }
 }

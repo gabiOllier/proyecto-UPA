@@ -25,4 +25,11 @@ public class TrainingSet {
     public void setLocations(List<Location> locations) {
         this.locations = locations;
     }
+
+    @Override
+    public String toString() {
+        return "TrainingSet{" +
+                "locations=" + locations +
+                '}';
+    }
 }
