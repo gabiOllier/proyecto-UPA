@@ -40,17 +40,27 @@ public class WiFiPositionAssistanceImplTest implements ProcessCompletedCallBackI
         return trainingSet;
     }
 
-    @Before
     public void setup() {
         wpa = new WiFiPositionAssistanceImpl();
         wpa.setTrainingSet(loadTrainingSet());
         wpa.setIface(this);
-        //wpa.setStrategy(new WiFiEuclideanLocationStrategy(wpa));
-        wpa.setStrategy(new WiFiNearestLocationStrategy(wpa));
     }
 
     @Test
-    public void exactSignalLevelsShouldMatchAtLeasth80Percent()  {
+    public void exactSignalLevelsWithNearestLocationStrategyShouldMatchAtLeasth80Percent()  {
+        setup();
+        wpa.setStrategy(new WiFiNearestLocationStrategy(wpa));
+        exec();
+    }
+
+    @Test
+    public void exactSignalLevelsWithEuclideanLocationStrategyShouldMatchAtLeasth80Percent()  {
+        setup();
+        wpa.setStrategy(new WiFiEuclideanLocationStrategy(wpa));
+        exec();
+    }
+
+    public void exec() {
         int matches=0;
         for (int loc=1; loc<=MAX_LOCATIONS; loc++) {
             Location toEstimate = trainingSet.getLocations().get(loc-1).clone();
