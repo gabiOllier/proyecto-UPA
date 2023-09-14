@@ -1,5 +1,7 @@
 package ar.edu.info.lidi.upa.model;
 
+import androidx.annotation.NonNull;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -38,6 +40,13 @@ public class Location {
 
     public void setScanDetails(List<ScanDetail> scanDetails) {
         this.scanDetails = scanDetails;
+    }
+
+
+    public Location clone()  {
+        Location target = new Location(name);
+        getScanDetails().forEach(sd -> target.getScanDetails().add(sd.clone()));
+        return target;
     }
 
     @Override

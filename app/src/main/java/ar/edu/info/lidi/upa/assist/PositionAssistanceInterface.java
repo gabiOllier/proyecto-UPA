@@ -53,9 +53,6 @@ public interface PositionAssistanceInterface {
      */
     public void notifyObservers();
 
-    /** Metodo para calcular medianas de señales en varias iteraciones */
-    void medianas();
-
     /* Estrategia para la determinacion de ubicacion */
     void setStrategy(WiFiLocationEstimationStrategy strategy);
 

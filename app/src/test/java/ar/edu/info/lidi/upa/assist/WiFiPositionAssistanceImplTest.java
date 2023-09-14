@@ -1,4 +1,5 @@
 package ar.edu.info.lidi.upa.assist;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Random;
@@ -39,20 +40,21 @@ public class WiFiPositionAssistanceImplTest implements ProcessCompletedCallBackI
         return trainingSet;
     }
 
-
-    @Test
-    public void exactSignalLevelsShouldMatchAtLeasth80Percent()  {
+    @Before
+    public void setup() {
         wpa = new WiFiPositionAssistanceImpl();
         wpa.setTrainingSet(loadTrainingSet());
         wpa.setIface(this);
         //wpa.setStrategy(new WiFiEuclideanLocationStrategy(wpa));
         wpa.setStrategy(new WiFiNearestLocationStrategy(wpa));
+    }
+
+    @Test
+    public void exactSignalLevelsShouldMatchAtLeasth80Percent()  {
         int matches=0;
         for (int loc=1; loc<=MAX_LOCATIONS; loc++) {
-            Location currentLoc = trainingSet.getLocations().get(loc-1);
-            Location toEstimate = new Location(currentLoc.getName());
+            Location toEstimate = trainingSet.getLocations().get(loc-1).clone();
             System.out.println(String.format("\n>> Estimando %s...", toEstimate.getName()));
-            currentLoc.getScanDetails().forEach(sd -> toEstimate.getScanDetails().add(new ScanDetail(sd.getBbsid(), sd.getLevel(), sd.getRssi())));
             if (("LOCATION_"+loc).equalsIgnoreCase(wpa.estimateLocation(toEstimate.getScanDetails()))) {
                 matches++;
             }
@@ -61,7 +63,6 @@ public class WiFiPositionAssistanceImplTest implements ProcessCompletedCallBackI
         System.out.println("[ === EFECTIVIDAD (%): " + rate + " === ]");
         assertTrue(rate >= 80) ;
     }
-
 
     @Override
     public void trainingCompleted(String message) {

@@ -52,6 +52,10 @@ public class ScanDetail {
         this.rssi = rssi;
     }
 
+    public ScanDetail clone() {
+        return new ScanDetail(bbsid, level, rssi);
+    }
+
     @NonNull
     @Override
     public String toString() {

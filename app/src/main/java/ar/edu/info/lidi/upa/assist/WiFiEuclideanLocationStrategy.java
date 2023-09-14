@@ -25,6 +25,7 @@ public class WiFiEuclideanLocationStrategy implements WiFiLocationEstimationStra
 
     @Override
     public String perform(List<ScanDetail> wifiList) throws Exception {
+        medianas();
         return euclideanDistance(wifiList);
     }
 
@@ -175,5 +176,13 @@ public class WiFiEuclideanLocationStrategy implements WiFiLocationEstimationStra
             }
         }
         return resultado;
+    }
+
+    public void medianas() {
+        for (Location aLocation : pai.getTrainingSet().getLocations()) {
+            Location targetLocation = pai.getTrainingSet().getLocations().stream().filter(loc -> loc.getName().equalsIgnoreCase(aLocation.getName().toLowerCase())).findFirst().get();
+            targetLocation.setScanDetails(SignalUtils.obtenerMedianasPorBssid(targetLocation.getScanDetails()));
+        }
+
     }
 }

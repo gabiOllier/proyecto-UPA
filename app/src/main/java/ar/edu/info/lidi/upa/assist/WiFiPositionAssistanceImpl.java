@@ -189,13 +189,6 @@ public class WiFiPositionAssistanceImpl implements PositionAssistanceInterface {
     }
 
     @Override
-    public void medianas() {
-        Location targetLocation = trainingSet.getLocations().stream().filter(loc -> loc.getName().equalsIgnoreCase(location.toLowerCase())).findFirst().get();
-        targetLocation.setScanDetails(SignalUtils.obtenerMedianasPorBssid(targetLocation.getScanDetails()));
-        //notifyObservers();
-    }
-
-    @Override
     public void addObserver(Observer observer) {
         observers.add(observer);
     }

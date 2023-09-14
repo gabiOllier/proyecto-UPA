@@ -249,7 +249,6 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
             train();
             return;
         }
-        posAssist.medianas();
         iterationsSpinner.setSelection(totalIterations);
         status(message, Constants.OUTPUT_TEXT);
     }
