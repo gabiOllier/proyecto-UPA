@@ -228,10 +228,8 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
 
     /** Estimar la posicion actual */
     public void estimateLocation() {
-        status("Calculando... Espere unos segundo sin moverse", Constants.OUTPUT_BOTH);
-        for (int i=0; i<3; i++) {
-            posAssist.locate(getBaseContext(), this);
-        }
+        status("Calculando... ", Constants.OUTPUT_BOTH);
+        posAssist.locate(getBaseContext(), this);
     }
 
     protected void status(String message, Integer output) {

@@ -14,8 +14,6 @@ public class ScanDetail {
     /** Intensidad de la señal (rssi) */
     protected int rssi;
 
-
-    @JsonCreator
     public ScanDetail(@JsonProperty("bbsid") String bbsid, @JsonProperty("signalStrength") int level) {
         this.bbsid = bbsid;
         this.level = level;
