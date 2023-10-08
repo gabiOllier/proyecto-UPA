@@ -49,6 +49,12 @@ public class Location {
         return target;
     }
 
+    public Location clone(int maxDeviation)  {
+        Location target = new Location(name);
+        getScanDetails().forEach(sd -> target.getScanDetails().add(sd.clone(maxDeviation)));
+        return target;
+    }
+
     @Override
     public String toString() {
         return "\nLocation{" +

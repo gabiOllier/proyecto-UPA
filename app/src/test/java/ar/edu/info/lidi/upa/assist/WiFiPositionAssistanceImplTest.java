@@ -2,6 +2,7 @@ package ar.edu.info.lidi.upa.assist;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.Random;
 
 import ar.edu.info.lidi.upa.exception.ProcessingException;
@@ -17,8 +18,8 @@ public class WiFiPositionAssistanceImplTest implements ProcessCompletedCallBackI
 
     WiFiPositionAssistanceImpl wpa = null;
     TrainingSet trainingSet = null;
-    final int MAX_LOCATIONS = 10;
-    final int MAX_BSSIDS_PER_LOCATION = 10;
+    final int MAX_LOCATIONS = 20;
+    final int MAX_BSSIDS_PER_LOCATION = 20;
 
     protected TrainingSet loadTrainingSet() {
         Random random = new Random();
@@ -50,22 +51,30 @@ public class WiFiPositionAssistanceImplTest implements ProcessCompletedCallBackI
     public void exactSignalLevelsWithNearestLocationStrategyShouldMatchAtLeasth80Percent()  {
         setup();
         wpa.setStrategy(new WiFiNearestLocationStrategy(wpa));
-        exec();
+        exec(0);
     }
+
+    @Test
+    public void slightlyRandomSignalLevelsWithNearestLocationStrategyShouldMatchAtLeasth80Percent()  {
+        setup();
+        wpa.setStrategy(new WiFiNearestLocationStrategy(wpa));
+        exec(10);
+    }
+
 
     @Test
     public void exactSignalLevelsWithEuclideanLocationStrategyShouldMatchAtLeasth80Percent()  {
         setup();
         wpa.setStrategy(new WiFiEuclideanLocationStrategy(wpa));
-        exec();
+        exec(0);
     }
 
-    public void exec() {
+    public void exec(int maxDeviation) {
         int matches=0;
         for (int loc=1; loc<=MAX_LOCATIONS; loc++) {
             Location toEstimate = trainingSet.getLocations().get(loc-1).clone();
             System.out.println(String.format("\n>> Estimando %s...", toEstimate.getName()));
-            if (("LOCATION_"+loc).equalsIgnoreCase(wpa.estimateLocation(toEstimate.getScanDetails()))) {
+            if (("LOCATION_"+loc).equalsIgnoreCase(wpa.estimateLocation(toEstimate.clone(maxDeviation).getScanDetails()))) {
                 matches++;
             }
         }

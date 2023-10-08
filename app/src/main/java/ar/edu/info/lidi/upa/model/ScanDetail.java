@@ -5,6 +5,10 @@ import androidx.annotation.NonNull;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Random;
+
+import ar.edu.info.lidi.upa.utils.SignalUtils;
+
 public class ScanDetail {
 
     /** Basic Service Set Identifier */
@@ -51,6 +55,14 @@ public class ScanDetail {
     }
 
     public ScanDetail clone() {
+        return new ScanDetail(bbsid, level, rssi);
+    }
+
+    public ScanDetail clone(int maxDeviation) {
+        Random random = new Random();
+        int deviation = random.nextInt(2 * maxDeviation + 1) - maxDeviation;
+        rssi = rssi + deviation;
+        level = SignalUtils.normalize(rssi);
         return new ScanDetail(bbsid, level, rssi);
     }
 
