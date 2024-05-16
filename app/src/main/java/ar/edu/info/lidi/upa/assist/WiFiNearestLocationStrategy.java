@@ -4,7 +4,6 @@ import java.util.List;
 
 import ar.edu.info.lidi.upa.model.Location;
 import ar.edu.info.lidi.upa.model.ScanDetail;
-import ar.edu.info.lidi.upa.utils.Constants;
 import ar.edu.info.lidi.upa.utils.SignalUtils;
 
 public class WiFiNearestLocationStrategy implements WiFiLocationEstimationStrategy {

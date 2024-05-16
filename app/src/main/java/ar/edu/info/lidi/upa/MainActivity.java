@@ -29,6 +29,7 @@ import android.widget.Spinner;
 
 import ar.edu.info.lidi.upa.assist.PositionAssistanceInterface;
 import ar.edu.info.lidi.upa.assist.ProcessCompletedCallBackInterface;
+import ar.edu.info.lidi.upa.common.ClassroomStatusFactory;
 import ar.edu.info.lidi.upa.common.Observer;
 import ar.edu.info.lidi.upa.common.PositionAssistanceFactory;
 import ar.edu.info.lidi.upa.exception.ProcessingException;
@@ -253,7 +254,13 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
 
     @Override
     public void estimationCompleted(String message) {
+        // Informar posicion
         status(message, Constants.OUTPUT_BOTH);
+        try {
+            // Informar estado del aula si corresponde
+            String info = ClassroomStatusFactory.getInstance().getCurrentStateFor(message);
+            status(info, Constants.OUTPUT_BOTH);
+        } catch (ProcessingException e) { /* Se omite informacion sobre las aulas */}
     }
 
     @Override
