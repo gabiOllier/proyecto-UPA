@@ -158,12 +158,12 @@ public class ClassroomStatusServiceImpl implements ClassroomStatusServiceInterfa
                 .append("De ")
                 .append(r.getHoraDesde().getH())
                 .append(" ")
-                .append(r.getHoraDesde().getH())
+                .append(r.getHoraDesde().getM())
 
                 .append(" horas a ")
                 .append(r.getHoraHasta().getH())
                 .append(" ")
-                .append(r.getHoraHasta().getH())
+                .append(r.getHoraHasta().getM())
                 .append(" horas. ");
 
         return ret.toString();
