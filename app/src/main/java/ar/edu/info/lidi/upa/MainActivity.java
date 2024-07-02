@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         goAssistState();
         managePermissions();
         loadPreferences();
+        initClassroomStatusService();
     }
 
     protected void initComponents() {
@@ -187,6 +188,16 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         editor.putString(Constants.PREFERENCE_DATA, datosEditText.getText().toString());
         editor.apply();
     }
+
+    protected void initClassroomStatusService()
+    {
+        try {
+            ClassroomStatusFactory.getInstance().getCurrentStateFor("FOOBAR");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     protected void onPause() {
         super.onPause();
