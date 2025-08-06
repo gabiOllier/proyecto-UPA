@@ -114,14 +114,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="200dp"
                     android:ems="10"
-                    android:gravity="start|top"
-                    android:maxLines="8"
-                    android:inputType="none"
-                    android:textIsSelectable="true"
                     android:focusable="false"
-                    android:longClickable="false"
+                    android:gravity="start|top"
+                    android:inputType="none"
                     android:isScrollContainer="true"
-                    android:scrollbars="vertical" />
+                    android:longClickable="false"
+                    android:maxLines="8"
+                    android:scrollbars="vertical"
+                    android:textIsSelectable="true" />
 
                 <View
                     android:layout_width="match_parent"
