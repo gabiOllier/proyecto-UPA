@@ -3,7 +3,11 @@ package ar.edu.info.lidi.upa;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
+import android.Manifest;
 import android.graphics.BitmapFactory;
 import android.annotation.SuppressLint;
 import android.content.ClipData;
@@ -12,9 +16,11 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
@@ -27,15 +33,19 @@ import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import java.io.File;
 import java.io.InputStream;
-
-import org.tensorflow.lite.Interpreter;
-import org.tensorflow.lite.support.common.FileUtil;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+import org.tensorflow.lite.Interpreter;
+import org.tensorflow.lite.support.common.FileUtil;
 
 import ar.edu.info.lidi.upa.assist.PositionAssistanceInterface;
 import ar.edu.info.lidi.upa.assist.ProcessCompletedCallBackInterface;
@@ -51,6 +61,8 @@ import ar.edu.info.lidi.upa.utils.JSONImporter;
 public class MainActivity extends AppCompatActivity implements ProcessCompletedCallBackInterface, Observer {
 
     protected final String TAG = "UPA";
+    private static final int REQUEST_CAMERA_PERMISSION = 101;
+
     TTSListener listener;
     TextToSpeech tts;
 
@@ -74,6 +86,10 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
 
     int totalIterations = 0;
 
+    private static final int REQUEST_IMAGE_CAPTURE = 3;
+    private Uri photoUri;
+    private String currentPhotoPath;
+
     private GestureDetector gestureDetector;
     private static final int REQUEST_IMAGE_PICK = 2;
 
@@ -86,6 +102,51 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
         startActivityForResult(intent, REQUEST_IMAGE_PICK);
+    }
+
+    private void abrirCamara() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+            return;
+        }
+        lanzarIntentCamara();
+    }
+
+    private void lanzarIntentCamara() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                Toast.makeText(this, "No se pudo crear el archivo de imagen", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Error al crear el archivo de imagen: " + ex.getMessage());
+                return;
+            }
+
+            if (photoFile != null) {
+                photoUri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        } else {
+            Toast.makeText(this, "No hay aplicación de cámara disponible", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,
+                ".jpg",
+                storageDir
+        );
+
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
     }
 
     @Override
@@ -106,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
                         estimateLocation();
                         return true;
                     } else if (diffX > 0) {
-                        abrirGaleria();
+                        abrirCamara();
                         return true;
                     }
                 }
@@ -192,13 +253,31 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CAMERA_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                lanzarIntentCamara();
+            } else {
+                Toast.makeText(this, "Permiso de cámara denegado", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        Uri imageUri = null;
+
         if (requestCode == REQUEST_IMAGE_PICK && resultCode == RESULT_OK && data != null) {
-            Uri imageUri = data.getData();
+            imageUri = data.getData();
+        } else if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK && photoUri != null) {
+            imageUri = photoUri;
+        }
+
+        if (imageUri != null) {
             try {
-                // Obtener tamaño original para escalar bien sin saturar memoria
                 BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inJustDecodeBounds = true;
                 InputStream inputStream1 = getContentResolver().openInputStream(imageUri);
@@ -215,7 +294,6 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
                 Bitmap bitmap = BitmapFactory.decodeStream(inputStream2, null, options);
                 if (inputStream2 != null) inputStream2.close();
 
-                // Escalar exactamente al tamaño que espera el modelo
                 capturedImageBitmap = Bitmap.createScaledBitmap(bitmap, MODEL_INPUT_SIZE, MODEL_INPUT_SIZE, true);
 
                 runModelInference(capturedImageBitmap);
@@ -256,7 +334,6 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
 
             ByteBuffer inputBuffer = convertBitmapToByteBuffer(bitmap);
 
-            // Debug: print buffer capacity
             Log.d("UPA", "Input buffer capacity: " + inputBuffer.capacity());
             int[] inputShape = tflite.getInputTensor(0).shape();
             Log.d("UPA", "Modelo input shape: " + java.util.Arrays.toString(inputShape));
@@ -264,7 +341,6 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
             float[][] output = new float[1][NUM_CLASSES];
             tflite.run(inputBuffer, output);
 
-            // Debug: print output probs
             for (int i = 0; i < NUM_CLASSES; i++) {
                 Log.d("UPA", "Clase " + i + ": " + output[0][i]);
             }
@@ -335,6 +411,7 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         }
     }
 
+    @Override
     protected void onPause() {
         super.onPause();
         savePreferences();
@@ -452,3 +529,4 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         }
     }
 }
+
