@@ -354,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
                 }
             }
 
-            String[] labels = {"Baño", "Cocina", "Habitación", "Living"};
+            String[] labels = {"Primer_piso_Decanato", "Primer_piso_Ascensores_y_baños", "Primer_piso_pasillo_de_aulas", "Primer_piso_Secretaria_de_decanato", "Primer_piso_Sala_PC", "Primer_piso_Anfiteatro"};
             String location = maxIndex >= 0 && maxIndex < labels.length ? labels[maxIndex] : "Desconocido";
             status("Ubicación detectada: " + location + " (" + String.format("%.2f", maxProb * 100) + "%)", Constants.OUTPUT_BOTH);
 
@@ -365,7 +365,7 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
     }
 
     private String getLabelForIndex(int index) {
-        String[] labels = {"Baño", "Living", "Cocina", "Habitación"};
+        String[] labels = {"Primer_piso_Decanato", "Primer_piso_Ascensores_y_baños", "Primer_piso_pasillo_de_aulas", "Primer_piso_Secretaria_de_decanato", "Primer_piso_Sala_PC", "Primer_piso_Anfiteatro"};
         if (index >= 0 && index < labels.length) {
             return labels[index];
         }
