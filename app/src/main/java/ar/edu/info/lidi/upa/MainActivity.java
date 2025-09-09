@@ -220,7 +220,26 @@ public class MainActivity extends AppCompatActivity implements ProcessCompletedC
         datosEditText.setVisibility(View.GONE);
 
         listener = new TTSListener();
-        tts = new TextToSpeech(getBaseContext(), listener);
+        tts = new TextToSpeech(getBaseContext(), status -> {
+            if (status == TextToSpeech.SUCCESS) {
+                int result = tts.setLanguage(new Locale("es", "AR"));
+                if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                    Log.e(TAG, "El idioma español no está soportado");
+                } else {
+                    tts.setSpeechRate(1.0f);
+                    tts.setPitch(1.0f);
+
+                    tts.speak(
+                            "Desliza a la izquierda para averiguar tu ubicación mediante señales de Wi-Fi, o a la derecha para usar la cámara y reconocer tu ubicación",
+                            TextToSpeech.QUEUE_FLUSH,
+                            null,
+                            "welcome_msg"
+                    );
+                }
+            } else {
+                Log.e(TAG, "Error inicializando TTS");
+            }
+        });
 
         posAssist.addObserver(this);
     }
